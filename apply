@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+terraform apply ./digitalocean.tfplan
+
+
+public_ip=$(terraform output -json | jq -r .master_public_ip.value)
+if [[ $public_ip != '' ]]; then
+  echo ssh -i ~/.ssh/terraform -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o Compression=yes root@$public_ip
+fi
+
