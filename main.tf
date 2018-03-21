@@ -35,8 +35,9 @@ resource "digitalocean_droplet" "master" {
 }
 
 resource "digitalocean_droplet" "minion" {
+  count = 1
   image = "ubuntu-16-04-x64"
-  name = "minion"
+  name = "minion-${count.index}"
   region = "nyc3"
   size = "2GB"
   private_networking = true
@@ -65,4 +66,16 @@ resource "digitalocean_droplet" "minion" {
   }
 
 }
+
+resource "null_resource" "finalsetup" {
+  provisioner "local-exec" {
+    command = "scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform root@${digitalocean_droplet.master.ipv4_address}:/tmp/myminion.* ."
+
+    # inline = [
+    #   "scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform root@${digitalocean_droplet.master.ipv4_address}:/tmp/myminion.pem .",
+    #   "scp -o StrictHostKeyChecking=no -i ~/.ssh/terraform root@${digitalocean_droplet.master.ipv4_address}:/tmp/myminion.pub .",
+    # ]
+  }
+}
+
 
